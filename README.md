@@ -45,7 +45,7 @@ A full-featured Django-based web platform that includes user authentication, pro
 3. Run migrations and start the development server  
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/759257989/devsearch_app.git
 cd project-folder
 python -m venv venv
 source venv/bin/activate

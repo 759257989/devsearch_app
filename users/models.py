@@ -1,8 +1,12 @@
 import uuid
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 # Create your models here.
+
+
 
 class Profile(models.Model):
     # profile is a OneToOneField to the User model in the application
@@ -36,3 +40,8 @@ class Skill(models.Model):
     
     def __str__(self):
         return str(self.name)
+   
+
+
+
+    
