@@ -1,7 +1,7 @@
 from operator import is_
 from django.shortcuts import redirect, render
 
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, ProfileForm
 from .models import Profile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -51,7 +51,7 @@ def loginUser(request):
         # if user credentials are correct, login the user, and save the user in the session
         if user is not None:
             login(request, user)
-            return redirect('profiles')
+            return redirect('account')
         else:
             messages.error(request, 'Username or password is incorrect')
         
@@ -82,9 +82,39 @@ def registerUser(request):
             # login the user, the user credential is stored in the session
             login(request, user)
             # redirect to the profiles page
-            return redirect('profiles')
+            return redirect('edit-account')
         else:
             messages.error(request, 'An error occurred during registration')
             
     context = {'page': page, 'form': form}
     return render(request, 'users/login_register.html', context)
+
+@login_required(login_url='login')
+def userAccount(request):
+    profile = request.user.profile
+    topskills = profile.skill_set.all()
+    projects = profile.project_set.all()
+    context = {'profile': profile, 
+               'skills': topskills,
+               'projects': projects}
+    return render(request, 'users/account.html', context)
+
+# Django decorator that ensures the view can only be accessed by authenticated users.
+@login_required(login_url='login')
+def editAccount(request):
+    # Gets the currently logged-in user via request.user
+    profile = request.user.profile
+    # Initializes a blank ProfileForm
+    form = ProfileForm(instance=profile)
+    
+    # Checks if the form has been submitted.
+    if request.method == 'POST':
+        # Reinitializes the form using the submitted data.
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+        
+            return redirect('account')
+            
+    context = {'form': form}
+    return render(request, 'users/profile_form.html', context)
