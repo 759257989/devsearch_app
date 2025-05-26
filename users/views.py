@@ -2,18 +2,20 @@ from operator import is_
 from django.shortcuts import redirect, render
 
 from .forms import CustomUserCreationForm, ProfileForm
-from .models import Profile
+from .models import Profile, Skill
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
+from .utils import searchProfiles
 
 
 # Create your views here.
 
 def profiles(request):
-    profiles = Profile.objects.all()
-    context = {'profiles': profiles}
+    profiles, search_query = searchProfiles(request)
+    context = {'profiles': profiles, 'search_query': search_query}
     return render(request, 'users/profiles.html', context)
 
 
@@ -118,3 +120,11 @@ def editAccount(request):
             
     context = {'form': form}
     return render(request, 'users/profile_form.html', context)
+
+@login_required(login_url='login')
+def createSkill(request):
+    context = {}
+    return render(request, 'users/skill_form.html', context)
+
+
+    
