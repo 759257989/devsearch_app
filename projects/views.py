@@ -3,23 +3,22 @@ from django.http import HttpResponse
 from .models import Project, Tag
 from .form import ProjectForm
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from .utils import searchProjects
+from .utils import searchProjects, paginateProjects
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 
 def projects(request):
-    projects = Project.objects.all()
-    context = {'projects': projects}
+    projects, search_query = searchProjects(request)
+    custom_range, projects = paginateProjects(request, projects, 3)
+    context = {'projects': projects, 'search_query': search_query, 'custom_range': custom_range}
     # pass a parameter  msg to the template (inside the template, it is passed to page palceholder)
     return render(request, 'projects/projects.html', context)
 
 
 def project(request, pk):
+    projectObj = Project.objects.get(id=pk)
     
-    projects, search_query = searchProjects(request)
-    context = {'project': projects, 'search_query': search_query}
-    
-    return render(request, 'projects/single-project.html', context)
+    return render(request, 'projects/single-project.html', {'project': projectObj})
 
 @login_required(login_url='login')
 def createProject(request):
